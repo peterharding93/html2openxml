@@ -215,7 +215,9 @@ namespace HtmlToOpenXml
 					}
 				}
 
-				for (int i = 0; i < absNumChildren.Length; i++)
+                lastAbsNumIndex = lastAbsNumIndex == -1 ? 0 : lastAbsNumIndex;
+
+                for (int i = 0; i < absNumChildren.Length; i++)
 					numberingPart.Numbering.InsertAt(absNumChildren[i], i + lastAbsNumIndex);
 
 				knownAbsNumIds = absNumChildren
