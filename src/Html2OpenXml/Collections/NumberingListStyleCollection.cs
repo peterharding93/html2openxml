@@ -24,22 +24,24 @@ namespace HtmlToOpenXml
         public const string HEADING_NUMBERING_NAME = "decimal-heading-multi";
 
         private MainDocumentPart mainPart;
-        private int nextInstanceID, levelDepth;
-        private int maxlevelDepth = 0;
+        private int nextInstanceID;
+        private int levelDepth;
+        private int maxlevelDepth;
         private bool firstItem;
-        private Dictionary<String, Int32> knownAbsNumIds;
-        private Stack<KeyValuePair<Int32, int>> numInstances;
-        private Stack<string[]> listHtmlElementClasses;
+        private Dictionary<string, int> knownAbsNumIds;
+        private readonly Stack<KeyValuePair<int, int>> numInstances = new Stack<KeyValuePair<int, int>>();
+        private readonly Stack<string[]> listHtmlElementClasses = new Stack<string[]>();
         private int headingNumberingId;
+
+        #region Constructor
 
         public NumberingListStyleCollection(MainDocumentPart mainPart)
         {
             this.mainPart = mainPart;
-            this.numInstances = new Stack<KeyValuePair<Int32, int>>();
-            listHtmlElementClasses = new Stack<string[]>();
             InitNumberingIds();
         }
 
+        #endregion
 
         #region InitNumberingIds
 
@@ -258,8 +260,6 @@ namespace HtmlToOpenXml
 
             CreateList(type, orderedList);
             listHtmlElementClasses.Push(en.Attributes.GetAsClass());
-
-            //Console.WriteLine($"BeginList levelDepth {levelDepth}");
         }
 
         #endregion
@@ -269,23 +269,23 @@ namespace HtmlToOpenXml
         public void EndList(bool forcePopInstances = true)
         {
             levelDepth--;
+            firstItem = true;//levelDepth == 0;
 
-            var popInstances = levelDepth > 0 || forcePopInstances;
-            //if (popInstances)
-            if (levelDepth > 0 && forcePopInstances)
+            //var popInstances = levelDepth > 0 || forcePopInstances;
+            var popInstances = forcePopInstances;
+            if (popInstances)
             {
                 numInstances.Pop();  // decrement for nested list
             }
 
-            // firstItem = levelDepth == 0;
-            firstItem = true;
+
             if (listHtmlElementClasses.Any())
             {
                 listHtmlElementClasses.Pop();
             }
 
 
-            // Console.WriteLine($"EndList levelDepth {levelDepth}\tpopInstances {popInstances}\tforcePopInstances {forcePopInstances}");
+            Console.WriteLine($"EndList levelDepth {levelDepth}\tpopInstances {popInstances}\tforcePopInstances {forcePopInstances}");
         }
 
         #endregion
@@ -322,14 +322,14 @@ namespace HtmlToOpenXml
                 }
             }
 
-            // Console.WriteLine($"GetHeadingNumberingId() returns {headingNumberingId}");
+            Console.WriteLine($"GetHeadingNumberingId() returns {headingNumberingId}");
 
             return headingNumberingId;
         }
 
         public void ApplyNumberingToHeadingParagraph(Paragraph p, int indentLevel)
         {
-            //Console.WriteLine($"ApplyNumberingToHeadingParagraph indentLevel {indentLevel - 1}");
+            Console.WriteLine($"ApplyNumberingToHeadingParagraph indentLevel {indentLevel - 1}");
 
             // Apply numbering to paragraph
             p.InsertInProperties(prop => prop.NumberingProperties = new NumberingProperties(
@@ -346,7 +346,7 @@ namespace HtmlToOpenXml
 
         #region CreateList
 
-        public int CreateList(String type, bool orderedList)
+        public int CreateList(string type, bool orderedList)
         {
             int absNumId = GetAbsNumIdFromType(type, orderedList);
             int prevAbsNumId = numInstances.Peek().Value;
@@ -360,7 +360,7 @@ namespace HtmlToOpenXml
 
             // save a NumberingInstance if the nested list style is the same as its ancestor.
             // this allows us to nest <ol> and restart the indentation to 1.
-            int currentInstanceId = this.InstanceID;
+            int currentInstanceId = InstanceId;
             if (levelDepth > 1 && absNumId == prevAbsNumId && orderedList)
             {
                 EnsureMultilevel(absNumId);
@@ -388,6 +388,8 @@ namespace HtmlToOpenXml
 
             numInstances.Push(new KeyValuePair<int, int>(currentInstanceId, absNumId));
 
+            Console.WriteLine($"BeginList levelDepth {levelDepth} / {currentInstanceId} - {absNumId}");
+
             return currentInstanceId;
         }
 
@@ -395,7 +397,7 @@ namespace HtmlToOpenXml
 
         #region GetAbsNumIdFromType
 
-        public int GetAbsNumIdFromType(String type, bool orderedList)
+        public int GetAbsNumIdFromType(string type, bool orderedList)
         {
             int absNumId;
 
@@ -416,7 +418,12 @@ namespace HtmlToOpenXml
 
         public int ProcessItem(HtmlEnumerator en)
         {
-            if (!firstItem) return this.InstanceID;
+            //Console.WriteLine($"ProcessItem en {en.}");
+
+            if (!firstItem)
+            {
+                return InstanceId;
+            }
 
             firstItem = false;
 
@@ -431,7 +438,7 @@ namespace HtmlToOpenXml
                     if (absNum.AbstractNumberId == numInstances.Peek().Value)
                     {
                         Level lvl = absNum.GetFirstChild<Level>();
-                        Int32 currentNumId = ++nextInstanceID;
+                        int currentNumId = ++nextInstanceID;
 
                         numbering.Append(
                             new AbstractNum(
@@ -446,11 +453,7 @@ namespace HtmlToOpenXml
                                 )
                             { AbstractNumberId = currentNumId });
                         numbering.Save(mainPart.NumberingDefinitionsPart);
-                        numbering.Append(
-                            new NumberingInstance(
-                                    new AbstractNumId() { Val = currentNumId }
-                                )
-                            { NumberID = currentNumId });
+                        numbering.Append(new NumberingInstance(new AbstractNumId() { Val = currentNumId }) { NumberID = currentNumId });
                         numbering.Save(mainPart.NumberingDefinitionsPart);
                         mainPart.NumberingDefinitionsPart.Numbering.Reload();
                         break;
@@ -458,7 +461,7 @@ namespace HtmlToOpenXml
                 }
             }
 
-            return this.InstanceID;
+            return InstanceId;
         }
 
         #endregion
@@ -491,7 +494,7 @@ namespace HtmlToOpenXml
                     {
                         // if we're cascading, that means we don't want any identation 
                         // + our leveltext should contain the previous levels as well
-                        StringBuilder lvlText = new StringBuilder();
+                        var lvlText = new StringBuilder();
 
                         for (int lvlIndex = 1; lvlIndex <= i; lvlIndex++)
                             lvlText.AppendFormat("%{0}.", lvlIndex);
@@ -522,9 +525,10 @@ namespace HtmlToOpenXml
         /// <summary> Gets the depth level of the current list instance. </summary>
         public int LevelIndex => levelDepth;
 
-        public string[] GetCurrentListClasses => listHtmlElementClasses.Peek();
+        /// <summary>  </summary>
+        public string[] CurrentListClasses => listHtmlElementClasses.Peek();
 
         /// <summary> Gets the ID of the current list instance. </summary>
-        private int InstanceID => numInstances.Peek().Key;
+        internal int InstanceId => numInstances.Peek().Key;
     }
 }

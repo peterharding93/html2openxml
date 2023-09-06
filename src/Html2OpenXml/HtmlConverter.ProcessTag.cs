@@ -525,7 +525,7 @@ namespace HtmlToOpenXml
         private string GetStyleIdForListItem(HtmlEnumerator en)
         {
             var styleId = GetStyleIdFromClasses(en.Attributes.GetAsClass())
-                   ?? GetStyleIdFromClasses(htmlStyles.NumberingList.GetCurrentListClasses)
+                   ?? GetStyleIdFromClasses(htmlStyles.NumberingList.CurrentListClasses)
                    ?? htmlStyles.DefaultStyles.ListParagraphStyle;
             // Console.WriteLine(styleId);
             return styleId;
