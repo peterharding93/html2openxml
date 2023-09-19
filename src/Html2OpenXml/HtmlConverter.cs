@@ -204,7 +204,7 @@ namespace HtmlToOpenXml
 					Action<HtmlEnumerator> action;
 					if (knownTags.TryGetValue(en.CurrentTag, out action))
 					{
-						if (Logging.On) Logging.PrintVerbose(en.Current);
+                        if (Logging.On) Logging.PrintVerbose(en.Current);
 						action(en);
 					}
 
@@ -218,6 +218,7 @@ namespace HtmlToOpenXml
 					// apply the previously discovered style
 					htmlStyles.Runs.ApplyTags(run);
 					elements.Add(run);
+					Console.WriteLine(run.InnerText);
 				}
 			}
 		}

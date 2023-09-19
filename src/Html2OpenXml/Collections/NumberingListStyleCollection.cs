@@ -83,6 +83,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Decimal },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "%1." },
+                        //LevelRestart = new LevelRestart(),
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -94,6 +95,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Bullet },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "•" },
+                        //LevelRestart = new LevelRestart(),
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -105,6 +107,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Bullet },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "▪" },
+                        //LevelRestart = new LevelRestart(),
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -116,6 +119,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Bullet },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "o" },
+                        //LevelRestart = new LevelRestart(),
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -128,6 +132,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.UpperLetter },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "%1." },
+                        //LevelRestart = new LevelRestart(),
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -140,6 +145,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.LowerLetter },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "%1." },
+                        //LevelRestart = new LevelRestart(),
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -152,6 +158,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.UpperRoman },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "%1." },
+                        //LevelRestart = new LevelRestart(),
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -164,6 +171,7 @@ namespace HtmlToOpenXml
                         NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.LowerRoman },
                         LevelIndex = 0,
                         LevelText = new LevelText() { Val = "%1." },
+                        // LevelRestart = new LevelRestart(),                           
                         PreviousParagraphProperties = new PreviousParagraphProperties {
                             Indentation = new Indentation() { Left = "420", Hanging = "360" }
                         }
@@ -448,6 +456,7 @@ namespace HtmlToOpenXml
                                         StartNumberingValue = new StartNumberingValue() { Val = 1 },
                                         NumberingFormat = new NumberingFormat() { Val = lvl.NumberingFormat.Val },
                                         LevelIndex = 0,
+                                        LevelRestart = new LevelRestart(),
                                         LevelText = new LevelText() { Val = lvl.LevelText.Val }
                                     }
                                 )
