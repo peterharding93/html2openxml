@@ -497,34 +497,55 @@ namespace HtmlToOpenXml
 
             if (absNum != null)
             {
-                var lvl = absNum.GetFirstChild<Level>();
-                var currentNumId = ++nextInstanceID;
-
                 var numbering = mainPart.NumberingDefinitionsPart.Numbering;
-                numbering.Append(
-                    new AbstractNum(
-                            new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                            new Level
-                            {
-                                StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                                NumberingFormat = new NumberingFormat() { Val = lvl.NumberingFormat.Val },
-                                LevelIndex = 0,
-                                LevelRestart = new LevelRestart(),
-                                LevelText = new LevelText() { Val = lvl.LevelText.Val }
-                            }
-                        )
-                    { AbstractNumberId = currentNumId });
-                numbering.Save(mainPart.NumberingDefinitionsPart);
+                var clone = CloneAbstractNum(absNum);
 
-                numbering.Append(new NumberingInstance(new AbstractNumId() { Val = currentNumId }) { NumberID = currentNumId });
-                
+                var currentNumId = ++nextInstanceID;
+                numbering.Append(new NumberingInstance(new AbstractNumId() { Val = clone.AbstractNumberId.Value }) { NumberID = currentNumId });
+
                 numbering.Save(mainPart.NumberingDefinitionsPart);
-                mainPart.NumberingDefinitionsPart.Numbering.Reload();
+                numbering.Reload();
             }
 
         }
 
         #endregion
+
+        private AbstractNum CloneAbstractNum(AbstractNum absNum)
+        {
+            var numbering = mainPart.NumberingDefinitionsPart.Numbering;
+
+            var lvl = absNum.GetFirstChild<Level>();
+            var currentNumId = GetMaxAbstractId() + 1;
+
+            //var level1 = absNum.GetFirstChild<Level>();
+            //var level = new Level
+            //{
+            //    StartNumberingValue = new StartNumberingValue() { Val = 1 },
+            //    NumberingFormat = new NumberingFormat() { Val = level1.NumberingFormat.Val },
+            //    LevelIndex = LevelIndex - 1,
+            //    LevelText = new LevelText() { Val = $"%{LevelIndex}." }
+            //};
+
+            var clone = new AbstractNum(
+                new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
+                new Level
+                {
+                    StartNumberingValue = new StartNumberingValue() { Val = 1 },
+                    NumberingFormat = new NumberingFormat() { Val = lvl.NumberingFormat.Val },
+                    LevelIndex = LevelIndex - 1,
+                    LevelRestart = new LevelRestart(),
+                    LevelText = new LevelText() { Val = lvl.LevelText.Val }
+                }
+            )
+            { AbstractNumberId = currentNumId, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = $"{absNum.AbstractNumDefinitionName.Val}-{Guid.NewGuid()}" } };
+
+            numbering.Append(clone);
+            numbering.Save(mainPart.NumberingDefinitionsPart);
+            numbering.Reload();
+
+            return clone;
+        }
 
         #region EnsureMultilevel
 
