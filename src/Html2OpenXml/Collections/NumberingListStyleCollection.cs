@@ -464,36 +464,36 @@ namespace HtmlToOpenXml
 
         private void CreateNewLevel()
         {
-            var numbering = mainPart.NumberingDefinitionsPart.Numbering;
-            foreach (var absNum in numbering.Elements<AbstractNum>())
+            var absNumId = numInstances.Peek().Value;
+            var absNum = AbstractNums.FirstOrDefault(a => a.AbstractNumberId.Value == absNumId);
+
+            if (absNum != null)
             {
-                if (absNum.AbstractNumberId == numInstances.Peek().Value)
-                {
-                    var lvl = absNum.GetFirstChild<Level>();
-                    var currentNumId = ++nextInstanceID;
+                var lvl = absNum.GetFirstChild<Level>();
+                var currentNumId = ++nextInstanceID;
 
-                    numbering.Append(
-                        new AbstractNum(
-                                new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                                new Level
-                                {
-                                    StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                                    NumberingFormat = new NumberingFormat() { Val = lvl.NumberingFormat.Val },
-                                    LevelIndex = 0,
-                                    LevelRestart = new LevelRestart(),
-                                    LevelText = new LevelText() { Val = lvl.LevelText.Val }
-                                }
-                            )
-                        { AbstractNumberId = currentNumId });
-                    numbering.Save(mainPart.NumberingDefinitionsPart);
+                var numbering = mainPart.NumberingDefinitionsPart.Numbering;
+                numbering.Append(
+                    new AbstractNum(
+                            new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
+                            new Level
+                            {
+                                StartNumberingValue = new StartNumberingValue() { Val = 1 },
+                                NumberingFormat = new NumberingFormat() { Val = lvl.NumberingFormat.Val },
+                                LevelIndex = 0,
+                                LevelRestart = new LevelRestart(),
+                                LevelText = new LevelText() { Val = lvl.LevelText.Val }
+                            }
+                        )
+                    { AbstractNumberId = currentNumId });
+                numbering.Save(mainPart.NumberingDefinitionsPart);
 
-                    numbering.Append(new NumberingInstance(new AbstractNumId() { Val = currentNumId }) { NumberID = currentNumId });
-                    numbering.Save(mainPart.NumberingDefinitionsPart);
-                    mainPart.NumberingDefinitionsPart.Numbering.Reload();
-
-                    break;
-                }
+                numbering.Append(new NumberingInstance(new AbstractNumId() { Val = currentNumId }) { NumberID = currentNumId });
+                
+                numbering.Save(mainPart.NumberingDefinitionsPart);
+                mainPart.NumberingDefinitionsPart.Numbering.Reload();
             }
+
         }
 
         #endregion
@@ -503,21 +503,22 @@ namespace HtmlToOpenXml
         /// <summary> Find a specified AbstractNum by its ID and update its definition to make it multi-level. </summary>
         private void EnsureMultilevel(int absNumId, bool cascading = false)
         {
-            AbstractNum absNumMultilevel = mainPart.NumberingDefinitionsPart.Numbering.Elements<AbstractNum>().SingleOrDefault(a => a.AbstractNumberId.Value == absNumId);
+            var absNumMultilevel = AbstractNums.SingleOrDefault(a => a.AbstractNumberId.Value == absNumId);
 
             if (absNumMultilevel != null && absNumMultilevel.MultiLevelType.Val == MultiLevelValues.SingleLevel)
             {
-                Level level1 = absNumMultilevel.GetFirstChild<Level>();
+                var level1 = absNumMultilevel.GetFirstChild<Level>();
                 absNumMultilevel.MultiLevelType.Val = MultiLevelValues.Multilevel;
 
                 // skip the first level, starts to 2
-                for (int i = 2; i < 10; i++)
+                for (var i = 2; i < 10; i++)
                 {
-                    Level level = new Level
+                    var level = new Level
                     {
                         StartNumberingValue = new StartNumberingValue() { Val = 1 },
                         NumberingFormat = new NumberingFormat() { Val = level1.NumberingFormat.Val },
-                        LevelIndex = i - 1
+                        LevelIndex = i - 1,
+                        LevelText = new LevelText() { Val = $"%{i}." }
                     };
 
                     if (cascading)
@@ -533,12 +534,10 @@ namespace HtmlToOpenXml
                     }
                     else
                     {
-                        level.LevelText = new LevelText() { Val = "%" + i + "." };
-                        level.PreviousParagraphProperties =
-                            new PreviousParagraphProperties
-                            {
-                                Indentation = new Indentation() { Left = (720 * i).ToString(CultureInfo.InvariantCulture), Hanging = "360" }
-                            };
+                        level.PreviousParagraphProperties = new PreviousParagraphProperties
+                        {
+                            Indentation = new Indentation() { Left = (720 * i).ToString(CultureInfo.InvariantCulture), Hanging = "360" }
+                        };
                     }
 
                     absNumMultilevel.Append(level);
@@ -551,6 +550,7 @@ namespace HtmlToOpenXml
         //____________________________________________________________________
         //
         // Properties Implementation
+        #region Properties
 
         /// <summary> Gets the depth level of the current list instance. </summary>
         public int LevelIndex => levelDepth;
@@ -562,7 +562,7 @@ namespace HtmlToOpenXml
         internal int InstanceId => numInstances.Peek().Key;
 
         internal IEnumerable<AbstractNum> AbstractNums
-            => mainPart?.NumberingDefinitionsPart?.Numbering?.ChildElements.Where(e => e != null && e is AbstractNum).Cast<AbstractNum>()
+            => mainPart?.NumberingDefinitionsPart?.Numbering?.Elements<AbstractNum>()
             ?? Enumerable.Empty<AbstractNum>();
 
         /// <summary>  </summary>
@@ -574,5 +574,7 @@ namespace HtmlToOpenXml
             OrderingTypeLowerRoman,
             HEADING_NUMBERING_NAME
         };
+
+        #endregion
     }
 }
