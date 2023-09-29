@@ -191,11 +191,7 @@ namespace HtmlToOpenXml
             {
                 // The absNumIdRef Id is a required field and should be unique. We will loop through the existing Numbering definition
                 // to retrieve the highest Id and reconstruct our own list definition template.
-                foreach (var abs in numberingPart.Numbering.Elements<AbstractNum>())
-                {
-                    if (abs.AbstractNumberId.HasValue && abs.AbstractNumberId > absNumIdRef)
-                        absNumIdRef = abs.AbstractNumberId;
-                }
+                absNumIdRef = GetMaxAbstractId();
                 absNumIdRef++;
             }
 
@@ -251,14 +247,36 @@ namespace HtmlToOpenXml
             // The w:numId can contain a value of 0, which is a special value that indicates that numbering was removed
             // at this level of the style hierarchy. While processing this markup, if the w:val='0',
             // the paragraph does not have a list item (http://msdn.microsoft.com/en-us/library/ee922775(office.14).aspx)
-            nextInstanceID = 1;
-            foreach (NumberingInstance inst in numberingPart.Numbering.Elements<NumberingInstance>())
-            {
-                if (inst.NumberID.Value > nextInstanceID) nextInstanceID = inst.NumberID;
-            }
+            nextInstanceID = GetMaxInstanceId();
             numInstances.Push(new KeyValuePair<int, int>(nextInstanceID, -1));
 
             numberingPart.Numbering.Save();
+        }
+
+        private int GetMaxInstanceId()
+        {
+            var numberingPart = mainPart.NumberingDefinitionsPart;
+
+            var id = 1;
+            foreach (var inst in numberingPart.Numbering.Elements<NumberingInstance>())
+            {
+                if (inst.NumberID.HasValue && inst.NumberID.Value > id) id = inst.NumberID;
+            }
+
+            return id;
+        }
+
+        private int GetMaxAbstractId()
+        {
+            var numberingPart = mainPart.NumberingDefinitionsPart;
+
+            var id = 0;
+            foreach (var abs in numberingPart.Numbering.Elements<AbstractNum>())
+            {
+                if (abs.AbstractNumberId.HasValue && abs.AbstractNumberId > id) id = abs.AbstractNumberId;
+            }
+
+            return id;
         }
 
         #endregion
@@ -387,12 +405,22 @@ namespace HtmlToOpenXml
                 // (MS Word does not tolerate hundreds of identical NumberingInstances)
                 if (orderedList || (levelDepth >= maxlevelDepth))
                 {
-                    currentInstanceId = ++nextInstanceID;
+                    if (orderedList)
+                    {
+                        EnsureMultilevel(absNumId);
+                    }
+
                     var numbering = mainPart.NumberingDefinitionsPart.Numbering;
 
+                    var absNum = AbstractNums.FirstOrDefault(a => a.AbstractNumberId.Value == absNumId);
+
+                    currentInstanceId = ++nextInstanceID;
                     numbering.Append(new NumberingInstance(
-                            new AbstractNumId() { Val = absNumId },
-                            new LevelOverride(new StartOverrideNumberingValue() { Val = 1 }) { LevelIndex = 0, }
+                            new AbstractNumId() { Val = absNumId }
+                            , new LevelOverride(new StartOverrideNumberingValue() { Val = 1 })
+                            {
+                                LevelIndex = orderedList ? LevelIndex - 1 : 0,
+                            }
                         )
                     { NumberID = currentInstanceId, });
 
@@ -508,6 +536,7 @@ namespace HtmlToOpenXml
             if (absNumMultilevel != null && absNumMultilevel.MultiLevelType.Val == MultiLevelValues.SingleLevel)
             {
                 var level1 = absNumMultilevel.GetFirstChild<Level>();
+
                 absNumMultilevel.MultiLevelType.Val = MultiLevelValues.Multilevel;
 
                 // skip the first level, starts to 2
