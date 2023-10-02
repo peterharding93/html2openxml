@@ -21,6 +21,20 @@ namespace HtmlToOpenXml
 {
     sealed class NumberingListStyleCollection
     {
+        #region Fields
+
+        internal struct NumberingRef
+        {
+            public NumberingRef(int numberingId, int absNumId)
+            {
+                NumberId = numberingId;
+                AbstractNumId = absNumId;
+            }
+
+            public int NumberId { get; }
+            public int AbstractNumId { get; }
+        }
+
         public const string HEADING_NUMBERING_NAME = "decimal-heading-multi";
         const string OrderingTypeDecimal = "decimal";
         const string OrderingTypeDisc = "disc";
@@ -36,9 +50,11 @@ namespace HtmlToOpenXml
         private int levelDepth;
         private int maxlevelDepth;
         private bool firstItem;
-        private readonly Stack<KeyValuePair<int, int>> numInstances = new Stack<KeyValuePair<int, int>>();
+        private readonly Stack<NumberingRef> numInstances = new Stack<NumberingRef>();
         private readonly Stack<string[]> listHtmlElementClasses = new Stack<string[]>();
         private int headingNumberingId;
+
+        #endregion
 
         #region Constructor
 
@@ -248,7 +264,7 @@ namespace HtmlToOpenXml
             // at this level of the style hierarchy. While processing this markup, if the w:val='0',
             // the paragraph does not have a list item (http://msdn.microsoft.com/en-us/library/ee922775(office.14).aspx)
             nextInstanceID = GetMaxInstanceId();
-            numInstances.Push(new KeyValuePair<int, int>(nextInstanceID, -1));
+            numInstances.Push(new NumberingRef(nextInstanceID, -1));
 
             numberingPart.Numbering.Save();
         }
@@ -382,8 +398,8 @@ namespace HtmlToOpenXml
         public int CreateList(string type, bool orderedList)
         {
             var abstractNumber = GetAbstractNumberIdFromType(type, orderedList);
-            int absNumId = abstractNumber.AbstractNumberId.Value;
-            int prevAbsNumId = numInstances.Peek().Value;
+            var absNumId = abstractNumber.AbstractNumberId.Value;
+            var prevAbsNumId = InstanceId.AbstractNumId;
 
             firstItem = true;
             levelDepth++;
@@ -394,7 +410,7 @@ namespace HtmlToOpenXml
 
             // save a NumberingInstance if the nested list style is the same as its ancestor.
             // this allows us to nest <ol> and restart the indentation to 1.
-            int currentInstanceId = InstanceId;
+            var currentInstanceId = InstanceId.NumberId;
             if (levelDepth > 1 && absNumId == prevAbsNumId && orderedList)
             {
                 EnsureMultilevel(absNumId);
@@ -429,7 +445,7 @@ namespace HtmlToOpenXml
                 }
             }
 
-            numInstances.Push(new KeyValuePair<int, int>(currentInstanceId, absNumId));
+            numInstances.Push(new NumberingRef(currentInstanceId, absNumId));
 
             Console.WriteLine($"BeginList levelDepth {levelDepth} / {currentInstanceId} - {absNumId}");
 
@@ -474,7 +490,7 @@ namespace HtmlToOpenXml
 
             if (!firstItem)
             {
-                return InstanceId;
+                return InstanceId.NumberId;
             }
 
             firstItem = false;
@@ -487,12 +503,12 @@ namespace HtmlToOpenXml
                 CreateNewLevel();
             }
 
-            return InstanceId;
+            return InstanceId.NumberId;
         }
 
         private void CreateNewLevel()
         {
-            var absNumId = numInstances.Peek().Value;
+            var absNumId = InstanceId.AbstractNumId;
             var absNum = AbstractNums.FirstOrDefault(a => a.AbstractNumberId.Value == absNumId);
 
             if (absNum != null)
@@ -597,10 +613,7 @@ namespace HtmlToOpenXml
 
         #endregion
 
-        //____________________________________________________________________
-        //
-        // Properties Implementation
-        #region Properties
+        #region Properties ____________________________________________________________________
 
         /// <summary> Gets the depth level of the current list instance. </summary>
         public int LevelIndex => levelDepth;
@@ -609,8 +622,17 @@ namespace HtmlToOpenXml
         public string[] CurrentListClasses => listHtmlElementClasses.Peek();
 
         /// <summary> Gets the ID of the current list instance. </summary>
-        internal int InstanceId => numInstances.Peek().Key;
+        internal NumberingRef InstanceId => numInstances.Peek();
 
+        /// <summary>  </summary>
+        internal NumberingInstance Instance => NumberingInstances.FirstOrDefault(x => x.NumberID == InstanceId.NumberId);
+
+        /// <summary>  </summary>
+        internal IEnumerable<NumberingInstance> NumberingInstances
+            => mainPart?.NumberingDefinitionsPart?.Numbering?.Elements<NumberingInstance>()
+            ?? Enumerable.Empty<NumberingInstance>();
+
+        /// <summary>  </summary>
         internal IEnumerable<AbstractNum> AbstractNums
             => mainPart?.NumberingDefinitionsPart?.Numbering?.Elements<AbstractNum>()
             ?? Enumerable.Empty<AbstractNum>();
