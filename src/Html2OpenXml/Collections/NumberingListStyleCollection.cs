@@ -68,110 +68,46 @@ namespace HtmlToOpenXml
 
         #region InitNumberingIds
 
+        private Level CreateLevel(NumberFormatValues numberFormat, string levelText, int levelIndex, bool cascading = false)
+        {
+            var lvl = new Level
+            {
+                LevelText = new LevelText() { Val = levelText },
+                NumberingFormat = new NumberingFormat() { Val = numberFormat },
+                LevelIndex = levelIndex,
+                PreviousParagraphProperties = new PreviousParagraphProperties
+                {
+                    Indentation = new Indentation() { Left = (720 * levelIndex).ToString(CultureInfo.InvariantCulture), Hanging = "360" }
+                },
+            };
+
+            if (numberFormat != NumberFormatValues.Bullet)
+            {
+                lvl.StartNumberingValue = new StartNumberingValue() { Val = 1 };
+            }
+
+            return lvl;
+        }
+
         private AbstractNum[] CreateDefaultNumberings(int absNumIdRef)
         {
             var defaultItems = new[] {
 				//8 kinds of abstractnum + 1 multi-level.
-				new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Decimal },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "%1." },
-                        //LevelRestart = new LevelRestart(),
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+				new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.Decimal, "%1.", 0)
                 ) { AbstractNumberId = absNumIdRef, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeDecimal } },
-                new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Bullet },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "•" },
-                        //LevelRestart = new LevelRestart(),
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+                new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.Bullet, "•", 0)
                 ) { AbstractNumberId = absNumIdRef + 1, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeDisc } },
-                new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Bullet },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "▪" },
-                        //LevelRestart = new LevelRestart(),
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+                new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.Bullet, "▪", 0)
                 ) { AbstractNumberId = absNumIdRef + 2, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeSquare } },
-                new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.Bullet },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "o" },
-                        //LevelRestart = new LevelRestart(),
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+                new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.Bullet, "o" , 0)
                 ) { AbstractNumberId = absNumIdRef + 3, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeCircle } },
-                new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.UpperLetter },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "%1." },
-                        //LevelRestart = new LevelRestart(),
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+                new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.UpperLetter, "%1.", 0)
                 ) { AbstractNumberId = absNumIdRef + 4, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeUpperAlpha } },
-                new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.LowerLetter },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "%1." },
-                        //LevelRestart = new LevelRestart(),
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+                new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.LowerLetter, "%1.", 0)
                 ) { AbstractNumberId = absNumIdRef + 5, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeLowerAlpha } },
-                new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.UpperRoman },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "%1." },
-                        //LevelRestart = new LevelRestart(),
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+                new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.UpperRoman, "%1.", 0)
                 ) { AbstractNumberId = absNumIdRef + 6, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeUpperRoman } },
-                new AbstractNum(
-                    new MultiLevelType() { Val = MultiLevelValues.SingleLevel },
-                    new Level {
-                        StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                        NumberingFormat = new NumberingFormat() { Val = NumberFormatValues.LowerRoman },
-                        LevelIndex = 0,
-                        LevelText = new LevelText() { Val = "%1." },
-                        // LevelRestart = new LevelRestart(),                           
-                        PreviousParagraphProperties = new PreviousParagraphProperties {
-                            Indentation = new Indentation() { Left = "420", Hanging = "360" }
-                        }
-                    }
+                new AbstractNum(new MultiLevelType() { Val = MultiLevelValues.SingleLevel }, CreateLevel(NumberFormatValues.LowerRoman, "%1.", 0)
                 ) { AbstractNumberId = absNumIdRef + 7, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = OrderingTypeLowerRoman } },
 				// decimal-heading-multi
 				// WARNING: only use this for headings
@@ -447,7 +383,7 @@ namespace HtmlToOpenXml
 
             numInstances.Push(new NumberingRef(currentInstanceId, absNumId));
 
-            Console.WriteLine($"BeginList levelDepth {levelDepth} / {currentInstanceId} - {absNumId}");
+            Console.WriteLine($"BeginList levelDepth {levelDepth} / NumberingInstance:{currentInstanceId} - absNum:{absNumId}");
 
             return currentInstanceId;
         }
@@ -508,8 +444,7 @@ namespace HtmlToOpenXml
 
         private void CreateNewLevel()
         {
-            var absNumId = InstanceId.AbstractNumId;
-            var absNum = AbstractNums.FirstOrDefault(a => a.AbstractNumberId.Value == absNumId);
+            var absNum = AbstractNums.FirstOrDefault(a => a.AbstractNumberId.Value == InstanceId.AbstractNumId);
 
             if (absNum != null)
             {
@@ -550,8 +485,8 @@ namespace HtmlToOpenXml
                     StartNumberingValue = new StartNumberingValue() { Val = 1 },
                     NumberingFormat = new NumberingFormat() { Val = lvl.NumberingFormat.Val },
                     LevelIndex = LevelIndex - 1,
-                    LevelRestart = new LevelRestart(),
-                    LevelText = new LevelText() { Val = lvl.LevelText.Val }
+                    LevelText = new LevelText() { Val = lvl.LevelText.Val },
+                    LevelRestart = new LevelRestart() { Val = lvl.LevelRestart?.Val },
                 }
             )
             { AbstractNumberId = currentNumId, AbstractNumDefinitionName = new AbstractNumDefinitionName() { Val = $"{absNum.AbstractNumDefinitionName.Val}-{Guid.NewGuid()}" } };
@@ -572,43 +507,36 @@ namespace HtmlToOpenXml
 
             if (absNumMultilevel != null && absNumMultilevel.MultiLevelType.Val == MultiLevelValues.SingleLevel)
             {
-                var level1 = absNumMultilevel.GetFirstChild<Level>();
-
                 absNumMultilevel.MultiLevelType.Val = MultiLevelValues.Multilevel;
 
                 // skip the first level, starts to 2
                 for (var i = 2; i < 10; i++)
                 {
-                    var level = new Level
-                    {
-                        StartNumberingValue = new StartNumberingValue() { Val = 1 },
-                        NumberingFormat = new NumberingFormat() { Val = level1.NumberingFormat.Val },
-                        LevelIndex = i - 1,
-                        LevelText = new LevelText() { Val = $"%{i}." }
-                    };
-
-                    if (cascading)
-                    {
-                        // if we're cascading, that means we don't want any identation 
-                        // + our leveltext should contain the previous levels as well
-                        var lvlText = new StringBuilder();
-
-                        for (int lvlIndex = 1; lvlIndex <= i; lvlIndex++)
-                            lvlText.AppendFormat("%{0}.", lvlIndex);
-
-                        level.LevelText = new LevelText() { Val = lvlText.ToString() };
-                    }
-                    else
-                    {
-                        level.PreviousParagraphProperties = new PreviousParagraphProperties
-                        {
-                            Indentation = new Indentation() { Left = (720 * i).ToString(CultureInfo.InvariantCulture), Hanging = "360" }
-                        };
-                    }
-
-                    absNumMultilevel.Append(level);
+                    AddLevel(absNumMultilevel, i, cascading);
                 }
             }
+        }
+
+        private void AddLevel(AbstractNum absNum, int levelIndex, bool cascading = false)
+        {
+            var level1 = absNum.GetFirstChild<Level>();
+
+            var level = CreateLevel(level1.NumberingFormat.Val.Value, $"%{levelIndex}.", levelIndex - 1, cascading);
+
+            if (cascading)
+            {
+                // if we're cascading, that means we don't want any identation 
+                // + our leveltext should contain the previous levels as well
+                var lvlText = new StringBuilder();
+
+                for (int lvlIndex = 1; lvlIndex <= levelIndex; lvlIndex++)
+                    lvlText.AppendFormat("%{0}.", lvlIndex);
+
+                level.LevelText = new LevelText() { Val = lvlText.ToString() };
+                level.PreviousParagraphProperties = new PreviousParagraphProperties() { Indentation = new Indentation() };
+            }
+
+            absNum.Append(level);
         }
 
         #endregion
