@@ -240,8 +240,8 @@ namespace HtmlToOpenXml
             // lookup for a predefined list style in the template collection
             var type = en.StyleAttributes["list-style-type"];
             var orderedList =
-                en.CurrentTag.Equals("<ol>", StringComparison.OrdinalIgnoreCase)
-                || OrderedTypes.Contains(type.ToLowerInvariant());
+                (en.CurrentTag?.Equals("<ol>", StringComparison.OrdinalIgnoreCase) ?? false)
+                || OrderedTypes.Contains(type?.ToLowerInvariant());
 
             CreateList(type, orderedList);
             listHtmlElementClasses.Push(en.Attributes.GetAsClass());
