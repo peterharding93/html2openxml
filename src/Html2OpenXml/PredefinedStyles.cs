@@ -30,12 +30,8 @@ namespace HtmlToOpenXml
             {
                 if (object.ReferenceEquals(resourceMan, null))
                 {
-                    ResourceManager temp = new ResourceManager("HtmlToOpenXml.PredefinedStyles",
-#if !NETSTANDARD1_3
-            typeof(PredefinedStyles).Assembly);
-#else
-            typeof(PredefinedStyles).GetTypeInfo().Assembly);
-#endif
+                    ResourceManager temp = new ResourceManager("HtmlToOpenXml.PredefinedStyles", typeof(PredefinedStyles).Assembly);
+
                     resourceMan = temp;
                 }
                 return resourceMan;
