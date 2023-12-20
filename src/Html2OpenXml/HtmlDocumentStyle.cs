@@ -67,7 +67,20 @@ namespace HtmlToOpenXml
 
             foreach (var s in styles.Elements<Style>())
             {
-                StyleName n = s.StyleName;
+                /* This code changes the Id of existing styles.
+				 * This breaks documents with existing content using the existing styles.
+				 * This code seems to do two things:
+				 *		1) changes StyleId to match the Name 
+				 *		2) generates unique StyleId (by appending numeric suffix) if there is a StyleId conflict.
+				 * I'm guessing that this was a workaround for other pieces of code which assumed Id is the name.
+				 * Correct solution would be to fix any modules that make that assumption.
+				 * Also a bit strange because the unique generate Id would no longer match the name.
+				 * 
+				 * Suggested behaviour (and test case):
+				 *    Merely constructing HtmlConverter(document) should not mutate the document.				 
+				 */
+#if false
+				StyleName n = s.StyleName;
                 string originalIdName = s.StyleId;
                 var id = 1;
 
@@ -87,15 +100,15 @@ namespace HtmlToOpenXml
                     id++;
                     s.StyleId = originalIdName + id.ToString("00");
                 }
-
+#endif
                 knownStyles.Add(s.StyleId, s);
             }
 
         }
 
-        #endregion
+#endregion
 
-        #region GetStyle
+		#region GetStyle
 
         /// <summary>
         /// Helper method to obtain the StyleId of a named style (invariant or localized name), of type Paragraph, case sensitive
@@ -180,7 +193,7 @@ namespace HtmlToOpenXml
 
 		#endregion
 
-        #region EnsureKnownStyle
+		#region EnsureKnownStyle
 
         /// <summary>
         /// Try to insert the style in the document if it is a known style.
@@ -194,7 +207,7 @@ namespace HtmlToOpenXml
 			return true;
         }
 
-        #endregion
+		#endregion
 
 		//____________________________________________________________________
 		//
