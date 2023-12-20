@@ -2,6 +2,7 @@ using System.Linq;
 using NUnit.Framework;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using NUnit.Framework.Legacy;
 
 namespace HtmlToOpenXml.Tests
 {
@@ -28,15 +29,15 @@ namespace HtmlToOpenXml.Tests
             Assert.That(elements[0].ChildElements.Count, Is.EqualTo(3));
 
             var runProperties = elements[0].ChildElements[0].GetFirstChild<RunProperties>();
-            Assert.IsNull(runProperties);
+            ClassicAssert.IsNull(runProperties);
 
             runProperties = elements[0].ChildElements[1].GetFirstChild<RunProperties>();
-            Assert.IsNotNull(runProperties);
+            ClassicAssert.IsNotNull(runProperties);
             Assert.That(runProperties.HasChild<Italic>(), Is.EqualTo(true));
             Assert.That(runProperties.HasChild<Bold>(), Is.EqualTo(false));
 
             runProperties = elements[0].ChildElements[2].GetFirstChild<RunProperties>();
-            Assert.IsNotNull(runProperties);
+            ClassicAssert.IsNotNull(runProperties);
             Assert.That(runProperties.HasChild<Italic>(), Is.EqualTo(true));
             Assert.That(runProperties.HasChild<Bold>(), Is.EqualTo(true));
 
@@ -46,19 +47,19 @@ namespace HtmlToOpenXml.Tests
             Assert.That(elements[1].ChildElements.Count, Is.EqualTo(2));
 
             runProperties = elements[0].ChildElements[0].GetFirstChild<RunProperties>();
-            Assert.IsNull(runProperties);
+            ClassicAssert.IsNull(runProperties);
 
             runProperties = elements[0].ChildElements[1].GetFirstChild<RunProperties>();
-            Assert.IsNotNull(runProperties);
+            ClassicAssert.IsNotNull(runProperties);
             Assert.That(runProperties.HasChild<Italic>(), Is.EqualTo(true));
 
             runProperties = elements[1].FirstChild.GetFirstChild<RunProperties>();
-            Assert.IsNotNull(runProperties);
+            ClassicAssert.IsNotNull(runProperties);
             Assert.That(runProperties.HasChild<Italic>(), Is.EqualTo(true));
             Assert.That(runProperties.HasChild<Bold>(), Is.EqualTo(false));
 
             runProperties = elements[1].ChildElements[1].GetFirstChild<RunProperties>();
-            Assert.IsNotNull(runProperties);
+            ClassicAssert.IsNotNull(runProperties);
             Assert.That(runProperties.HasChild<Italic>(), Is.EqualTo(true));
             Assert.That(runProperties.HasChild<Bold>(), Is.EqualTo(true));
 
@@ -70,7 +71,7 @@ namespace HtmlToOpenXml.Tests
             Assert.That(elements[1].FirstChild, Is.TypeOf(typeof(Run)));
 
             runProperties = elements[1].FirstChild.GetFirstChild<RunProperties>();
-            Assert.IsNull(runProperties);
+            ClassicAssert.IsNull(runProperties);
         }
 
         [TestCase("<p>Some\ntext</p>", ExpectedResult = 1)]
@@ -116,12 +117,12 @@ namespace HtmlToOpenXml.Tests
             var elements = converter.Parse(" < b >bold</b>");
             Assert.That(elements.Count, Is.EqualTo(1));
             Assert.That(elements[0].ChildElements.Count, Is.EqualTo(1));
-            Assert.IsNull(elements[0].FirstChild.GetFirstChild<RunProperties>());
+            ClassicAssert.IsNull(elements[0].FirstChild.GetFirstChild<RunProperties>());
 
             elements = converter.Parse(" <3");
             Assert.That(elements.Count, Is.EqualTo(1));
             Assert.That(elements[0].ChildElements.Count, Is.EqualTo(1));
-            Assert.IsNull(elements[0].FirstChild.GetFirstChild<RunProperties>());
+            ClassicAssert.IsNull(elements[0].FirstChild.GetFirstChild<RunProperties>());
         }
 
         [Test]
@@ -150,8 +151,8 @@ namespace HtmlToOpenXml.Tests
                     var elements = converter.Parse("<div class='CustomStyle1'>Lorem</div><span>Ipsum</span>");
                     Assert.That(elements.Count, Is.GreaterThan(0));
                     var paragraphProperties = elements[0].GetFirstChild<ParagraphProperties>();
-                    Assert.IsNotNull(paragraphProperties);
-                    Assert.IsNotNull(paragraphProperties.ParagraphStyleId);
+                    ClassicAssert.IsNotNull(paragraphProperties);
+                    ClassicAssert.IsNotNull(paragraphProperties.ParagraphStyleId);
                     Assert.That(paragraphProperties.ParagraphStyleId.Val.Value, Is.EqualTo("CustomStyle1"));
                 }
             }

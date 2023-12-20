@@ -4,6 +4,7 @@ using NUnit.Framework;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using NUnit.Framework.Legacy;
 
 namespace HtmlToOpenXml.Tests
 {
@@ -26,15 +27,15 @@ namespace HtmlToOpenXml.Tests
             });
 
             var hyperlink = (Hyperlink) elements[0].FirstChild;
-            Assert.IsNotNull(hyperlink.Tooltip);
+            ClassicAssert.IsNotNull(hyperlink.Tooltip);
             Assert.That(hyperlink.Tooltip.Value, Is.EqualTo("Test Tooltip"));
 
-            Assert.IsNotNull(hyperlink.Id);
+            ClassicAssert.IsNotNull(hyperlink.Id);
             Assert.That(hyperlink.History.Value, Is.EqualTo(true));
             Assert.That(mainPart.HyperlinkRelationships.Count(), Is.GreaterThan(0));
 
             var extLink = mainPart.HyperlinkRelationships.FirstOrDefault(r => r.Id == hyperlink.Id);
-            Assert.IsNotNull(extLink);
+            ClassicAssert.IsNotNull(extLink);
             Assert.That(extLink.IsExternal, Is.EqualTo(true));
             Assert.That(extLink.Uri.AbsoluteUri, Is.EqualTo("http://www.site.com/"));
         }
@@ -76,19 +77,19 @@ namespace HtmlToOpenXml.Tests
             Assert.That(elements[0].FirstChild, Is.TypeOf(typeof(Hyperlink)));
 
             var hyperlink = (Hyperlink) elements[0].FirstChild;
-            Assert.IsNull(hyperlink.Id);
-            Assert.True(hyperlink.Anchor == "anchor1");
+            ClassicAssert.IsNull(hyperlink.Id);
+            ClassicAssert.True(hyperlink.Anchor == "anchor1");
 
             converter.ExcludeLinkAnchor = true;
 
             // _top is always present and bypass the previous rule
             elements = converter.Parse(@"<a href=""#_top"">Anchor2</a>");
             hyperlink = (Hyperlink) elements[0].FirstChild;
-            Assert.True(hyperlink.Anchor == "_top");
+            ClassicAssert.True(hyperlink.Anchor == "_top");
 
             // this should generate a Run and not an Hyperlink
             elements = converter.Parse(@"<a href=""#_anchor3"">Anchor3</a>");
-            Assert.That(elements[0].FirstChild, Is.TypeOf(typeof(Run)));
+            ClassicAssert.That(elements[0].FirstChild, Is.TypeOf(typeof(Run)));
 
             converter.ExcludeLinkAnchor = false;
         }

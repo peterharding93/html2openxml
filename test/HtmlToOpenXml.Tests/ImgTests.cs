@@ -3,6 +3,7 @@ using NUnit.Framework;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using NUnit.Framework.Legacy;
 
 namespace HtmlToOpenXml.Tests
 {
@@ -29,8 +30,8 @@ namespace HtmlToOpenXml.Tests
             AssertIsImg(elements[0]);
             var run = elements[0].GetFirstChild<Run>();
             RunProperties runProperties = run.GetFirstChild<RunProperties>();
-            Assert.IsNotNull(runProperties);
-            Assert.IsNotNull(runProperties.Border);
+            ClassicAssert.IsNotNull(runProperties);
+            ClassicAssert.IsNotNull(runProperties.Border);
         }
 
         [Test]
@@ -46,12 +47,12 @@ namespace HtmlToOpenXml.Tests
         private void AssertIsImg (OpenXmlCompositeElement elements)
         {
             var run = elements.GetFirstChild<Run>();
-            Assert.IsNotNull(run);
+            ClassicAssert.IsNotNull(run);
             var img = run.GetFirstChild<Drawing>();
-            Assert.IsNotNull(img);
-            Assert.IsNotNull(img.Inline?.Graphic?.GraphicData);
+            ClassicAssert.IsNotNull(img);
+            ClassicAssert.IsNotNull(img.Inline?.Graphic?.GraphicData);
             var pic = img.Inline.Graphic.GraphicData.GetFirstChild<pic.Picture>();
-            Assert.IsNotNull(pic?.BlipFill?.Blip?.Embed);
+            ClassicAssert.IsNotNull(pic?.BlipFill?.Blip?.Embed);
 
             var imagePartId = pic.BlipFill.Blip.Embed.Value;
             var part = mainPart.GetPartById(imagePartId);

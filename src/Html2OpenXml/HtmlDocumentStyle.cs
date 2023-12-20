@@ -55,56 +55,62 @@ namespace HtmlToOpenXml
 
 		#region PrepareStyles
 
-		/// <summary>
-		/// Preload the styles in the document to match localized style name.
-		/// </summary>
-		internal void PrepareStyles(MainDocumentPart mainPart)
-		{
-			knownStyles = new OpenXmlDocumentStyleCollection();
-			if (mainPart.StyleDefinitionsPart == null) return;
+        /// <summary>
+        /// Preload the styles in the document to match localized style name.
+        /// </summary>
+        internal void PrepareStyles(MainDocumentPart mainPart)
+        {
+            knownStyles = new OpenXmlDocumentStyleCollection();
+            if (mainPart.StyleDefinitionsPart == null) return;
 
-			Styles styles = mainPart.StyleDefinitionsPart.Styles;
+            Styles styles = mainPart.StyleDefinitionsPart.Styles;
 
-			foreach (var s in styles.Elements<Style>())
-			{
-                		StyleName n = s.StyleName;
-				string originalIdName = s.StyleId;
-               			 var id = 1;
+            foreach (var s in styles.Elements<Style>())
+            {
+                StyleName n = s.StyleName;
+                string originalIdName = s.StyleId;
+                var id = 1;
 
-				if (n != null)
-				{
-				    string name = n.Val.Value;
-				    if (name != originalIdName)
-				    {
-					originalIdName = name;
-				    }
-				}
+                if (n != null)
+                {
+                    string name = n.Val.Value;
+                    if (name != originalIdName)
+                    {
+                        originalIdName = name;
+                    }
+                }
 
-				s.StyleId = originalIdName;
+                s.StyleId = originalIdName;
 
-                		while (knownStyles.ContainsKey(s.StyleId))
-				{
-					id++;
-					s.StyleId = originalIdName + id.ToString("00");
-				}
+                while (knownStyles.ContainsKey(s.StyleId))
+                {
+                    id++;
+                    s.StyleId = originalIdName + id.ToString("00");
+                }
 
-                		knownStyles.Add(s.StyleId, s);
-			}
+                knownStyles.Add(s.StyleId, s);
+            }
 
-		}
+        }
 
-		#endregion
+        #endregion
 
-		#region GetStyle
+        #region GetStyle
 
-		/// <summary>
-		/// Helper method to obtain the StyleId of a named style (invariant or localized name).
-		/// </summary>
-		/// <param name="name">The name of the style to look for.</param>
-		/// <param name="styleType">True to obtain the character version of the given style.</param>
-		/// <param name="ignoreCase">Indicate whether the search should be performed with the case-sensitive flag or not.</param>
-		/// <returns>If not found, returns the given name argument.</returns>
-		public String GetStyle(string name, StyleValues styleType = StyleValues.Paragraph, bool ignoreCase = false)
+        /// <summary>
+        /// Helper method to obtain the StyleId of a named style (invariant or localized name), of type Paragraph, case sensitive
+        /// </summary>
+        /// <param name="name">The name of the style to look for.</param>
+        public String GetStyle(string name) => GetStyle(name, StyleValues.Paragraph);
+		
+        /// <summary>
+        /// Helper method to obtain the StyleId of a named style (invariant or localized name).
+        /// </summary>
+        /// <param name="name">The name of the style to look for.</param>
+        /// <param name="styleType">True to obtain the character version of the given style.</param>
+        /// <param name="ignoreCase">Indicate whether the search should be performed with the case-sensitive flag or not.</param>
+        /// <returns>If not found, returns the given name argument.</returns>
+        public String GetStyle(string name, StyleValues styleType, bool ignoreCase = false)
 		{
 			Style style;
 

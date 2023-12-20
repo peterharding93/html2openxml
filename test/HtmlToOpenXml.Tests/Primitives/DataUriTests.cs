@@ -1,5 +1,6 @@
 using HtmlToOpenXml.IO;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace HtmlToOpenXml.Tests
 {
@@ -15,7 +16,7 @@ namespace HtmlToOpenXml.Tests
             // red dot
             string uri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
             DataUri.TryCreate(uri, out DataUri result);
-            Assert.IsNotNull(result);
+            ClassicAssert.IsNotNull(result);
         }
 
         [Test]
@@ -64,7 +65,7 @@ OfDEXhz/AIRbxtAkV1pYNrJHNC0qSbPlDKQDg8e3tVD4Q6BKPGmp67Y2lxbaJ5ckVo04IMgZ
 Wilba3ihB6iNAufyoltLaZw8tvFIw6FkBNSgADA4FLRRRRRRRX//2Q==
 ";
             DataUri.TryCreate(uri, out DataUri result);
-            Assert.IsNotNull(result);
+            ClassicAssert.IsNotNull(result);
         }
     }
 }

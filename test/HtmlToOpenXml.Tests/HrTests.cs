@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
+using NUnit.Framework.Legacy;
 
 namespace HtmlToOpenXml.Tests
 {
@@ -37,14 +38,14 @@ namespace HtmlToOpenXml.Tests
         {
             Assert.That(hr.ChildElements.Count, Is.EqualTo(2));
             var props = hr.GetFirstChild<ParagraphProperties>();
-            Assert.IsNotNull(props);
+            ClassicAssert.IsNotNull(props);
 
             Assert.That(props.ChildElements.Count, Is.EqualTo(expectSpacing? 2:1));
-            Assert.IsNotNull(props.ParagraphBorders);
-            Assert.IsNotNull(props.ParagraphBorders.TopBorder);
+            ClassicAssert.IsNotNull(props.ParagraphBorders);
+            ClassicAssert.IsNotNull(props.ParagraphBorders.TopBorder);
 
             if (expectSpacing)
-                Assert.IsNotNull(props.SpacingBetweenLines);
+                ClassicAssert.IsNotNull(props.SpacingBetweenLines);
         }
     }
 }

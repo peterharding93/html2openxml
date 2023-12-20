@@ -41,7 +41,9 @@ namespace HtmlToOpenXml
 			return null;
 		}
 
-        public static bool Equals<T>(this EnumValue<T> value, T comparand) where T : struct
+        public static bool Equals<T>(this EnumValue<T> value, T comparand) 
+			where T : struct, DocumentFormat.OpenXml.IEnumValueFactory<T>, DocumentFormat.OpenXml.IEnumValue
+
         {
             return value != null && value.Value.Equals(comparand);
         }
