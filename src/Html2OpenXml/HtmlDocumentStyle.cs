@@ -67,7 +67,23 @@ namespace HtmlToOpenXml
 
             foreach (var s in styles.Elements<Style>())
             {
-                /* This code changes the Id of existing styles.
+
+#if false
+
+				/* This version ensures that the style is avaialble both by NAME and by Id.
+				 * This was the originbal version
+				 * That runs the risk of the dictionary key not being unique.
+				 */
+                StyleName n = s.StyleName;
+                if (n != null)
+                {
+                    String name = n.Val.Value;
+                    if (name != s.StyleId) knownStyles.Add(name, s);
+                }
+#endif
+
+#if false
+				/* This code changes the Id of existing styles.
 				 * This breaks documents with existing content using the existing styles.
 				 * This code seems to do two things:
 				 *		1) changes StyleId to match the Name 
@@ -79,7 +95,7 @@ namespace HtmlToOpenXml
 				 * Suggested behaviour (and test case):
 				 *    Merely constructing HtmlConverter(document) should not mutate the document.				 
 				 */
-#if false
+
 				StyleName n = s.StyleName;
                 string originalIdName = s.StyleId;
                 var id = 1;
@@ -104,7 +120,29 @@ namespace HtmlToOpenXml
                 knownStyles.Add(s.StyleId, s);
             }
 
-        }
+#if true
+			/* This version will only add lookup by Name if there isn't a naming conflict.
+			 * Do this as a second pass.
+			 * If there is a naming conflict, then oh well.
+			 */
+			foreach (var s in styles.Elements<Style>())
+			{
+				if (s.StyleName is null)
+					continue;
+                
+				String name = s.StyleName.Val.Value;
+
+                if (!knownStyles.ContainsKey(name))
+				{
+					knownStyles.Add(name, s);
+				}
+                
+            }
+
+#endif
+
+
+            }
 
 #endregion
 
