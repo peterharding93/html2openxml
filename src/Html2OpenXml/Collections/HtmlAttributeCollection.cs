@@ -13,10 +13,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using w = DocumentFormat.OpenXml.Wordprocessing;
 
 namespace HtmlToOpenXml
 {
-	using w = DocumentFormat.OpenXml.Wordprocessing;
 
 
 	/// <summary>
