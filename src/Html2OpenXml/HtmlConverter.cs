@@ -218,7 +218,7 @@ namespace HtmlToOpenXml
 					// apply the previously discovered style
 					htmlStyles.Runs.ApplyTags(run);
 					elements.Add(run);
-					Console.WriteLine(run.InnerText);
+					//Console.WriteLine(run.InnerText);
 				}
 			}
 		}
