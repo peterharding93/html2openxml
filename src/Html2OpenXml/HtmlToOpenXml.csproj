@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;net8.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">netstandard2.0;net46;net8.0</TargetFrameworks>
+  <PropertyGroup>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyName>HtmlToOpenXml</AssemblyName>
@@ -24,7 +22,8 @@
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
     <RepositoryType>GIT</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <DebugType>embedded</DebugType>    
+    <DebugType>embedded</DebugType>
+    <TargetFrameworks>net9.0</TargetFrameworks>    
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
