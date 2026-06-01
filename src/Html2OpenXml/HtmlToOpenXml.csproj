@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -23,7 +23,8 @@
     <RepositoryType>GIT</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <DebugType>embedded</DebugType>
-    <TargetFrameworks>net9.0</TargetFrameworks>    
+    <TargetFrameworks>net9.0</TargetFrameworks>         
+    <NoWarn>$(NoWarn);1591;8981;1574</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
